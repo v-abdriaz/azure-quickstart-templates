@@ -1,8 +1,16 @@
 @description('Specifies the name of the deployment.')
 param name string
 
-@description('Specifies the name of the environment.')
+@description('Specifies the name of the environment.')4
 param environment string
+
+@minLength(5)
+param containerRegistryName string
+
+@minLength(3)
+@maxLength(24)
+param storageAccountName string
+
 
 @description('Specifies the location of the Azure Machine Learning workspace and dependent resources.')
 @allowed([
@@ -30,15 +38,13 @@ param environment string
 param location string
 
 var tenantId = subscription().tenantId
-var storageAccountName = 'st${name}${environment}'
 var keyVaultName = 'kv-${name}-${environment}'
 var applicationInsightsName = 'appi-${name}-${environment}'
-var containerRegistryName = 'cr${name}${environment}'
 var workspaceName = 'mlw${name}${environment}'
 var storageAccountId = storageAccount.id
-var keyVaultId = vault.id
-var applicationInsightId = applicationInsight.id
-var containerRegistryId = registry.id
+var keyVaultId = keyVault.id
+var applicationInsightId = applicationInsights.id
+var containerRegistryId = containerRegistry.id
 
 resource storageAccount 'Microsoft.Storage/storageAccounts@2022-05-01' = {
   name: storageAccountName
@@ -68,7 +74,7 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2022-05-01' = {
   }
 }
 
-resource vault 'Microsoft.KeyVault/vaults@2022-07-01' = {
+resource keyVault 'Microsoft.KeyVault/vaults@2023-07-01' = {
   name: keyVaultName
   location: location
   properties: {
@@ -82,7 +88,7 @@ resource vault 'Microsoft.KeyVault/vaults@2022-07-01' = {
   }
 }
 
-resource applicationInsight 'Microsoft.Insights/components@2020-02-02' = {
+resource applicationInsights 'Microsoft.Insights/components@2020-02-02' = {
   name: applicationInsightsName
   location: location
   kind: 'web'
@@ -91,22 +97,22 @@ resource applicationInsight 'Microsoft.Insights/components@2020-02-02' = {
   }
 }
 
-resource registry 'Microsoft.ContainerRegistry/registries@2022-02-01-preview' = {
+resource containerRegistry 'Microsoft.ContainerRegistry/registries@2023-11-01-preview' = {
+  name: containerRegistryName
   sku: {
     name: 'Standard'
   }
-  name: containerRegistryName
   location: location
   properties: {
     adminUserEnabled: false
   }
 }
 
-resource workspace 'Microsoft.MachineLearningServices/workspaces@2022-10-01' = {
+resource workspace 'Microsoft.MachineLearningServices/workspaces@2023-10-01' = {
+  name: workspaceName
   identity: {
     type: 'SystemAssigned'
   }
-  name: workspaceName
   location: location
   properties: {
     friendlyName: workspaceName

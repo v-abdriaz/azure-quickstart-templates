@@ -6,8 +6,8 @@ products:
 - azure-resource-manager
 urlFragment: machine-learning-workspace
 languages:
-- json
 - bicep
+- json
 ---
 # Create an Azure Machine Learning service workspace
 
